@@ -16,7 +16,6 @@ const handleResolveButton = async (interaction, client) => {
 
     // Process modal submit
     resolveModalSubmit(interaction, client, identifier)
-    
 }
 
 const resolveModalBuilder = (identifier) => {
@@ -64,7 +63,7 @@ const resolveModalSubmit = async (interaction, client, identifier) => {
 
         // get resolved board channel by channel Id
         const resolvedBoard = interaction.client.channels.cache.get(process.env.resolvedTicketsChannelId)
-        
+
         // parse ticket's footer and convert to forum tags
         let allTags = await resolvedBoard.availableTags.reduce((a,v) => ({...a,[v.name] : v.id}), {})
         const forumTags = embed.footer.text.split(" • ").map(tagName => allTags[tagName]).filter(x => x !== undefined)
@@ -74,23 +73,19 @@ const resolveModalSubmit = async (interaction, client, identifier) => {
            message: {embeds: [embed]}, 
            appliedTags: forumTags
         })
-
         // send summary of problem and solution to the thread as comment
-        thread.send(`> Problem Encountered\n\`\`\`${resolvedTicket.problem}\`\`\`\n> Solution\n\`\`\`${resolvedTicket.solution}\`\`\``)
-
+        thread.send(`## Problem Encountered\n${resolvedTicket.problem}\n## Solution\n${resolvedTicket.solution}`)
         // get discord name of student and guardian for logging
         const student_discord_id = interaction.message.embeds[0].data.fields[0].value.replaceAll("<@","").replaceAll(">","")
         const guardian_discord_id = interaction.user.id
         const guild = client.guilds.cache.get(process.env.guildId); // Get the guild object
-        
-        // student
+
         const student_member = guild.members.cache.get(student_discord_id);
         const student_user = client.users.cache.get(student_discord_id);
         const student_username = student_user.username + "#" + student_user.discriminator
         const student_nickname = student_member.nickname
         const student_name = (student_nickname == null) ? student_username : student_nickname
 
-        // guardian
         const guardian_member = guild.members.cache.get(guardian_discord_id);
         const guardian_user = client.users.cache.get(guardian_discord_id);
         const guardian_username = guardian_user.username + "#" + guardian_user.discriminator
@@ -101,5 +96,4 @@ const resolveModalSubmit = async (interaction, client, identifier) => {
     })
     .catch(console.error)
 }
-
 module.exports = handleResolveButton
